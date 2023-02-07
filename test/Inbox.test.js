@@ -15,7 +15,7 @@ class Car {
 
 }
 let car;
-// If we have multiple times object creagted in our code then we can use beforeEach function.
+// If we have multiple times object creagted in our code then we can use beforeEach function..
 beforeEach(() => {
     car = new Car();
 });
