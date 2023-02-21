@@ -50,6 +50,9 @@ contract TestStructInContract {
     function makePayment () public payable {
         
         paymentStructVar = paymentStruct(msg.sender, msg.value);
+// Alternate way to add values to struct
+        // paymentStructVar.myAddress = msg.sender;
+        // paymentStructVar.myBalance = msg.value;
     }
 
 }
