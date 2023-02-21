@@ -30,3 +30,26 @@ contract childPayment{
             valueRecieved = _valueRecieved;
         }
     }
+
+// ******************** Implementing the above example with the structure  *******************//
+
+// This is an exact implementation of the above contract. 
+// Here we use struct in place of child contract.
+contract TestStructInContract {
+
+// Defining the struct which contains address and the balance.
+    struct paymentStruct{
+        address myAddress;
+        uint myBalance;
+    }
+
+// This function will allow to make payment to the contarct.
+// Inside this contract we call struct that will store the value and address of send amont and sender.
+    paymentStruct public paymentStructVar;
+
+    function makePayment () public payable {
+        
+        paymentStructVar = paymentStruct(msg.sender, msg.value);
+    }
+
+}
