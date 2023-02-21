@@ -13,13 +13,41 @@ pragma solidity ^0.8.15;
     contract MyCryptoWallet {
 
         address payable public owner;
+        address payable public newowner;
         mapping (address => uint) public allowance;
         mapping (address => bool) public isAllowed;
+        mapping (address => bool) public guardians;
+        mapping (address => mapping (address => bool)) guardianVoted;
+        uint8 guardianVoteCount;
+        uint8 guardianVoteCountMax = 3;
 
 // we havw called a constructor to store the owner in a variable.
        constructor() {
            owner = payable(msg.sender);
        }
+
+// This function will add guardian to the wallet.
+       function addGuardianToWallet (address _newProposedGuardian) public {
+           require(msg.sender == owner, "You are not the Owner, Pease ask the owner of the wallet for adding guardian to wallet");
+           guardians[_newProposedGuardian] = true;
+       }
+
+// voting of the guardian for proposing new owner.
+        function votingGuardiansForNewOwner (address payable _newOwner) public {
+            require(guardians[msg.sender], "Only guardians are allowed to vote, You are not one of them");
+            require(guardianVoted[_newOwner][msg.sender] == false, "You are allowed to vote only once per new proposed owner");
+            guardianVoted[_newOwner][msg.sender] = true;
+            guardianVoteCount++;
+        }
+
+// This function will check proposal and set the new owner if required conditions matches.
+        function setNewOwner( address payable _newOwner) public {
+            require(msg.sender == owner, "You are not the Owner, Please ask the owner of the wallet for setting new owner");
+            if(guardianVoteCount >= guardianVoteCountMax) {
+                owner = _newOwner;
+                guardianVoteCount = 0;
+            }
+        }
 
 // This function sets allowance of certain funds to certain people.
         function setAllowanceForAnyone(address _allowedPerson, uint _allowingAmount) public {
@@ -55,6 +83,8 @@ pragma solidity ^0.8.15;
            }
          
        }
+
+
 
 // This will allow the smart contract to recieve funds. 
        receive() external payable {}
