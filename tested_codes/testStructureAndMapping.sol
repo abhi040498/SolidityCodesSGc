@@ -51,5 +51,18 @@ pragma solidity ^0.8.15;
 // Now we can transfer the withdrawal amount to the withdrawal address
             _withdrawalAddress.transfer(_withdrawalAmount);
         }
+// Since we cannot call the deposite in the balance mapping to display, we need to define a function that does this.
+// This display deposite will take arguments as address of the depositer and index of deposite
+// and will display the transaction details i.e amount deposited and timestamp of that. 
+        function displayDeposite(address depositerAddress, uint depositeIndex) public view returns(Transaction memory) {
+            return balances[depositerAddress].deposites[depositeIndex];
+        }
+
+// Since we cannot call the withdraw in the balance mapping to display, we need to define a function that does this.
+// This display withdraw will take arguments as address of the depositer and index of withdrawal
+// and will display the transaction details i.e amount withdrawal and timestamp of that.
+        function displayWithdrawal(address withdrawalAddress, uint withdrawalIndex) public view returns(Transaction memory) {
+            return balances[withdrawalAddress].withdrawals[withdrawalIndex];
+        }
 
     }
