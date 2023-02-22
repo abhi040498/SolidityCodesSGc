@@ -52,3 +52,43 @@ contract Lottery {
     }
 
 }
+// ********************* Tried lotteryGame in a different way *****************
+
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity ^0.8.16;
+
+// What this contract will do?
+
+// this is a lottery game.
+// Players can enter the game by paying fees (eg 1 ether).
+// There will be a Manager who can ask the smart contract to pick a winner
+// Then samrt contract will pick a winner and sends all the fund to the winner. 
+contract LotteryContractGame {
+    address public manager;
+    address[] players;
+    uint public playersCount;
+    address payable public  winner;
+
+
+    constructor () {
+        manager = msg.sender;
+    }
+
+    // to enter into the game
+    function enterIntoTheGame () public payable {
+        require(msg.value >= 1 ether, "You need to send atleast 1 ether to enter the game");
+        players.push(msg.sender);
+        playersCount++;
+    }
+
+    // pick winner
+    function pickWinner () public  returns (address) {
+        require(msg.sender == manager, "only The manager is allowed to ask the smart contract to pick winner");
+        uint randomNumber = uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, players)));
+        winner = payable(players[randomNumber % players.length]);
+        winner.transfer(address(this).balance);
+        return winner;
+    }
+
+}
