@@ -66,4 +66,22 @@ contract Campaign {
         campaignFundRequest[msg.sender].approvalCount++;
     }
 
+// Here we finalize the request when we have enouhg number of approvals for the request.
+// ONly the manager/owner of the request creater will be able to call this.
+// We do this with the help of restricted modifier function
+    function finalizeRequest(address _requestAddress) public restricted {
+        // We request to point to the same structure, so we use storage. 
+        // Request storage request = requests[index];
+
+// We need to check the how many approvals we need to complete this request. also the request should not be complete. 
+// We are taking more than 50% of the approverals
+        require(campaignFundRequest[_requestAddress].approvalCount > (approversCount / 2));
+        require(!campaignFundRequest[_requestAddress].complete);
+
+// Once these conditions are matched then we transfer the amount to the recipient and mark the request complete to true.
+        (bool sucess, ) = _requestAddress.call{value: campaignFundRequest[_requestAddress].askingAmount}("");
+        require(sucess, "The transfer was not successful, TRy Again");
+        campaignFundRequest[_requestAddress].complete = true;
+    }
+
 }
