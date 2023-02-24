@@ -18,6 +18,7 @@ contract Campaign {
         mapping(address => bool) approvals;   // These are the people who have approved
         uint approvalCount;                   // These are the total number of approvals.
         bool complete;                        // Tracks of money has been send for request
+        bool isRequestCreated;                // checks if the request has been created. so that it should not create multiple times.
     }
 
     address public  manager;                              // we define the manager variable.
@@ -30,7 +31,7 @@ contract Campaign {
     // When we want to perform any function that is to be used in multiple places we write a fucntion and at the end of the function body we write
     // _; This tells the function to execute all the code of the parent function from there.
     modifier restricted() {
-        require(msg.sender ==manager);
+        require(msg.sender ==manager, "Only the contract creator is allowed to perform this action, Aborting");
         _;
     }
 
@@ -58,7 +59,8 @@ contract Campaign {
         // To validate this we will use a modifier function which we have defined before constructor function.
     
     function createRequest(string memory _description, uint _amount, address _recipient) public restricted {
-    
+        // check if the request has been created or not.
+        require(!campaignFundRequest[_recipient].isRequestCreated, " This Funding request has already been created, Please dont try multiple times");
         campaignFundRequest[_recipient].description = _description;
         campaignFundRequest[_recipient].askingAmount = _amount;
         campaignFundRequest[_recipient].recipient = _recipient;
@@ -70,8 +72,8 @@ contract Campaign {
         // The contributer will create an approveRequest for a specific contract denoted with its requests[index]
         function approveRequest(address _recipient) public {
 
-            require(approvers[msg.sender], "I dont see you in approvers list, unfortunetly you cannot approve the request");        // This will check if the person voting is present in the approvers list. (qualified as approver).
-            require(!campaignFundRequest[msg.sender].approvals[msg.sender], "You have already voted, You cannot vote multiple times.");    // this checks if the person as already not voted.
+        require(approvers[msg.sender], "I dont see you in approvers list, unfortunetly you cannot approve the request");        // This will check if the person voting is present in the approvers list. (qualified as approver).
+        require(!campaignFundRequest[msg.sender].approvals[msg.sender], "You have already voted, You cannot vote multiple times.");    // this checks if the person as already not voted.
         // If the the person has not already voted then the approval will be updated.
         campaignFundRequest[_recipient].approvals[msg.sender] = true;   
         campaignFundRequest[msg.sender].approvalCount++;
@@ -91,7 +93,7 @@ contract Campaign {
 
         // Once these conditions are matched then we transfer the amount to the recipient and mark the request complete to true.
         (bool sucess, ) = _requestAddress.call{value: campaignFundRequest[_requestAddress].askingAmount}("");
-        require(sucess, "The transfer was not successful, TRy Again");
+        require(sucess, "The transfer was not successful, Try Again");
         campaignFundRequest[_requestAddress].complete = true;
     }
 
